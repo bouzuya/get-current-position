@@ -1,0 +1,71 @@
+{
+  "name": "@bouzuya/get-current-position",
+  "description": "`navigator.geolocation.getCurrentPosition` wrapper",
+  "version": "0.0.0",
+  "author": {
+    "email": "m@bouzuya.net",
+    "name": "bouzuya",
+    "url": "http://bouzuya.net"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "4"
+          }
+        }
+      ],
+      "power-assert"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/bouzuya/get-current-position/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^8.10.0",
+    "@types/power-assert": "^1.4.0",
+    "@types/proxyquire": "^1.3.0",
+    "@types/sinon": "^4.3.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-power-assert": "^2.0.0",
+    "beater": "^5.0.0",
+    "cpx": "^1.5.0",
+    "npm-run-all": "^4.1.0",
+    "power-assert": "^1.4.0",
+    "proxyquire": "^1.8.0",
+    "rimraf": "^2.6.0",
+    "sinon": "^4.4.0",
+    "tap-dot-b": "^0.1.0",
+    "tslint": "^5.9.0",
+    "typescript": "^2.7.0",
+    "watch": "^1.0.0"
+  },
+  "files": [
+    "lib"
+  ],
+  "homepage": "https://github.com/bouzuya/get-current-position#readme",
+  "keywords": [],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bouzuya/get-current-position.git"
+  },
+  "scripts": {
+    "build": "npm-run-all -s build:lint build:es2015 build:es5 build:lib",
+    "build:es2015": "tsc",
+    "build:es5": "babel -q -d .tmp/es5/ .tmp/es2015/",
+    "build:lib": "cpx '.tmp/es2015/src/**/*.{js,ts}' lib/",
+    "build:lint": "tslint --project tsconfig.json",
+    "clean": "rimraf .tmp lib",
+    "prepare": "npm-run-all -s clean build",
+    "test": "node .tmp/es5/test/index.js | tap-dot-b",
+    "watch": "npm-run-all -p 'watch:*'",
+    "watch:es2015": "npm run build:es2015 -- --sourceMap --watch",
+    "watch:es5": "npm run build:es5 -- --watch",
+    "watch:test": "watch 'npm run test' .tmp/es5/"
+  }
+}
