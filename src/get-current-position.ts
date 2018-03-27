@@ -1,37 +1,26 @@
-// interface PositionOptions {
-//   enableHighAccuracy?: boolean;
-//   maximumAge?: number;
-//   timeout?: number;
-// }
+import { AccuracyOptions, PositionOptions } from './position-options';
 
-export interface GetCurrentPositionOptions extends PositionOptions {
+export interface GetCurrentPositionOptions extends Partial<PositionOptions> {
 
   // `navigator.geolocation.getCurrentPosition` options
 
-  // // default: false. See: PositionOptions.enableHighAccuracy
-  // enableHighAccuracy?: boolean;
-  // // default: 0. See: PositionOptions.maximumAge
-  // maximumAge?: number;
-  // // default: Infinity. See: PositionOptions.timeout
-  // timeout?: number;
+  // enableHighAccuracy default: false. See: PositionOptions.enableHighAccuracy
+  // maximumAge default: 0. See: PositionOptions.maximumAge
+  // timeout default: Infinity. See: PositionOptions.timeout
 
   // extra options
 
-  accuracyOptions?: {
-    // default: Infinity.
-    maximumAccuracy?: number;
-    // default: 0.
-    minimumTimestamp?: number;
-  };
-  // default: 0.
+  // accuracyOptions
+  //   maximumAccuracy default: Infinity.
+  //   minimumTimestamp default: 0.
+  accuracyOptions?: Partial<AccuracyOptions>;
+  // maximumRetryCount default: 0.
   maximumRetryCount?: number;
-  // default: []. `navigator.geolocation.getCurrentPosition` arguments on retry.
-  //   // default: GetCurrentPositionOptions.enableHighAccuracy.
-  //   enableHighAccuracy?: boolean;
-  //   // default: GetCurrentPositionOptions.maximumAge.
-  //   maximumAge?: number;
-  //   // default: GetCurrentPositionOptions.timeout.
-  //   timeout?: number;
+  // `navigator.geolocation.getCurrentPosition` arguments on retry.
+  // retryArguments default: [].
+  //   enableHighAccuracy default: GetCurrentPositionOptions.enableHighAccuracy.
+  //   maximumAge default: GetCurrentPositionOptions.maximumAge.
+  //   timeout default: GetCurrentPositionOptions.timeout.
   retryArguments?: PositionOptions[];
 }
 
