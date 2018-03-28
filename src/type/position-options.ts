@@ -16,10 +16,6 @@ export interface NewPositionOptions extends PositionOptions {
   retryArguments: PositionOptions[];
 }
 
-export type DeepPartial<T> = {
-  [P in keyof T]?: DeepPartial<T[P]>;
-};
-
 // `geolocation.PositionOptions` options
 //   enableHighAccuracy default: false. See: PositionOptions.enableHighAccuracy
 //   maximumAge default: 0. See: PositionOptions.maximumAge
@@ -33,4 +29,8 @@ export type DeepPartial<T> = {
 //     enableHighAccuracy default: GetCurrentPositionOptions.enableHighAccuracy.
 //     maximumAge default: GetCurrentPositionOptions.maximumAge.
 //     timeout default: GetCurrentPositionOptions.timeout.
-export type GetCurrentPositionOptions = DeepPartial<NewPositionOptions>;
+export interface GetCurrentPositionOptions extends Partial<PositionOptions> {
+  accuracyOptions?: Partial<AccuracyOptions>;
+  maximumRetryCount?: number;
+  retryArguments?: Array<Partial<PositionOptions>>;
+}

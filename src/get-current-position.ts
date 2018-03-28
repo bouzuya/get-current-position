@@ -1,5 +1,5 @@
 import {
-  DeepPartial, GetCurrentPositionOptions, NewPositionOptions
+  GetCurrentPositionOptions, NewPositionOptions
 } from './type/position-options';
 
 // interface Coordinates {
@@ -24,6 +24,6 @@ const getCurrentPosition = (
 };
 
 export {
-  DeepPartial, GetCurrentPositionOptions, NewPositionOptions,
+  GetCurrentPositionOptions, NewPositionOptions,
   getCurrentPosition
 };
