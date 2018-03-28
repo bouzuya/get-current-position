@@ -1,4 +1,31 @@
+import { buildOptions } from './build-options';
 import { PositionOptionsPrime } from './type/position-options';
+
+type GetCurrentPosition = Geolocation['getCurrentPosition'];
+type PromisifiedGetCurrentPosition =
+  (options?: PositionOptions) => Promise<Position>;
+
+const getGetCurrentPosition = (): GetCurrentPosition | null => {
+  const w = window;
+  if (typeof w === 'undefined') return null;
+  const n = w.navigator;
+  if (typeof n === 'undefined') return null;
+  const g = n.geolocation;
+  if (typeof g === 'undefined') return null;
+  const f = g.getCurrentPosition;
+  if (typeof f === 'undefined') return null;
+  return f;
+};
+
+const promisifyGetCurrentPosition = (
+  original: GetCurrentPosition
+): PromisifiedGetCurrentPosition => {
+  return (options) => {
+    return new Promise((resolve, reject) => {
+      return original(resolve, reject, options);
+    });
+  };
+};
 
 // interface Coordinates {
 //   readonly accuracy: number;
@@ -16,9 +43,18 @@ import { PositionOptionsPrime } from './type/position-options';
 // }
 
 const getCurrentPosition = (
-  _options: PositionOptionsPrime
+  options: PositionOptionsPrime
 ): Promise<Position> => {
-  return Promise.reject(new Error('Not Implemented Yet'));
+  const strictOptions = buildOptions(options);
+  const original = getGetCurrentPosition();
+  if (original === null) return Promise.reject(new Error()); // TODO
+  const promisifiedGetCurrentPosition = promisifyGetCurrentPosition(original);
+  // TODO: retry and error handling
+  return promisifiedGetCurrentPosition({
+    enableHighAccuracy: strictOptions.enableHighAccuracy,
+    maximumAge: strictOptions.maximumAge,
+    timeout: strictOptions.timeout
+  });
 };
 
 export {
