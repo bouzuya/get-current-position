@@ -1,6 +1,6 @@
 import {
   DeepPartial, GetCurrentPositionOptions, NewPositionOptions
-} from './position-options';
+} from './type/position-options';
 
 // interface Coordinates {
 //   readonly accuracy: number;
