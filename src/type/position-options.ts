@@ -1,19 +1,22 @@
 // https://w3c.github.io/geolocation-api/#dom-positionoptions
-export interface PositionOptions {
+// PositionOptions = Partial<StrictPositionOptions>
+export interface StrictPositionOptions {
   enableHighAccuracy: boolean;
   maximumAge: number;
   timeout: number;
 }
 
-export interface AccuracyOptions {
+export interface StrictAccuracyOptions {
   maximumAccuracy: number;
   minimumTimestamp: number;
 }
 
-export interface NewPositionOptions extends PositionOptions {
-  accuracyOptions: AccuracyOptions;
+export type AccuracyOptions = Partial<StrictAccuracyOptions>;
+
+export interface StrictPositionOptionsPrime extends StrictPositionOptions {
+  accuracyOptions: StrictAccuracyOptions;
   maximumRetryCount: number;
-  retryArguments: PositionOptions[];
+  retryArguments: StrictPositionOptions[];
 }
 
 // `geolocation.PositionOptions` options
@@ -26,11 +29,11 @@ export interface NewPositionOptions extends PositionOptions {
 //     minimumTimestamp default: 0.
 //   maximumRetryCount default: 0.
 //   retryArguments default: [].
-//     enableHighAccuracy default: GetCurrentPositionOptions.enableHighAccuracy.
-//     maximumAge default: GetCurrentPositionOptions.maximumAge.
-//     timeout default: GetCurrentPositionOptions.timeout.
-export interface GetCurrentPositionOptions extends Partial<PositionOptions> {
-  accuracyOptions?: Partial<AccuracyOptions>;
+//     enableHighAccuracy default: last enableHighAccuracy or GetCurrentPositionOptions.enableHighAccuracy.
+//     maximumAge default: last maximumAge or GetCurrentPositionOptions.maximumAge.
+//     timeout default: last timeout or GetCurrentPositionOptions.timeout.
+export interface PositionOptionsPrime extends Partial<StrictPositionOptions> {
+  accuracyOptions?: Partial<StrictAccuracyOptions>;
   maximumRetryCount?: number;
-  retryArguments?: Array<Partial<PositionOptions>>;
+  retryArguments?: Array<Partial<StrictPositionOptions>>;
 }

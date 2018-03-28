@@ -1,8 +1,9 @@
 import { Test, test } from 'beater';
 import assert from 'power-assert';
-import { NewPositionOptions, buildOptions } from '../src/build-options';
+import { buildOptions } from '../src/build-options';
+import { StrictPositionOptionsPrime } from '../src/type/position-options';
 
-const defaultOptions: NewPositionOptions = {
+const defaultOptions: StrictPositionOptionsPrime = {
   ...{
     enableHighAccuracy: false,
     maximumAge: 0,

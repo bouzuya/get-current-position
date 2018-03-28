@@ -1,26 +1,26 @@
 import {
-  AccuracyOptions,
-  GetCurrentPositionOptions,
-  NewPositionOptions,
-  PositionOptions
+  PositionOptionsPrime,
+  StrictAccuracyOptions,
+  StrictPositionOptions,
+  StrictPositionOptionsPrime
 } from './type/position-options';
 
-const defaultPositionOptions: PositionOptions = {
+const defaultPositionOptions: StrictPositionOptions = {
   enableHighAccuracy: false,
   maximumAge: 0,
   timeout: Infinity
 };
 
-const defaultAccuracyOptions: AccuracyOptions = {
+const defaultAccuracyOptions: StrictAccuracyOptions = {
   maximumAccuracy: Infinity,
   minimumTimestamp: 0
 };
 
 const defaultMaximumRetryCount: number = 0;
 
-const defaultRetryArguments: PositionOptions[] = [];
+const defaultRetryArguments: StrictPositionOptions[] = [];
 
-const defaultNewPositionOptions: NewPositionOptions = {
+const defaultNewPositionOptions: StrictPositionOptionsPrime = {
   ...defaultPositionOptions,
   accuracyOptions: defaultAccuracyOptions,
   maximumRetryCount: defaultMaximumRetryCount,
@@ -32,10 +32,10 @@ const ensure = <T>(v: T | undefined, d: T): T => {
 };
 
 const ensureAccuracyOptions = (
-  v: Partial<AccuracyOptions> | undefined,
-  d: AccuracyOptions
-): AccuracyOptions => {
-  const a = ensure<Partial<AccuracyOptions>>(v, d);
+  v: Partial<StrictAccuracyOptions> | undefined,
+  d: StrictAccuracyOptions
+): StrictAccuracyOptions => {
+  const a = ensure<Partial<StrictAccuracyOptions>>(v, d);
   return {
     maximumAccuracy: ensure(a.maximumAccuracy, d.maximumAccuracy),
     minimumTimestamp: ensure(a.minimumTimestamp, d.minimumTimestamp)
@@ -43,9 +43,9 @@ const ensureAccuracyOptions = (
 };
 
 const ensurePositionOptions = (
-  v: Partial<PositionOptions>,
-  d: PositionOptions
-): PositionOptions => {
+  v: Partial<StrictPositionOptions>,
+  d: StrictPositionOptions
+): StrictPositionOptions => {
   return {
     enableHighAccuracy: ensure(v.enableHighAccuracy, d.enableHighAccuracy),
     maximumAge: ensure(v.maximumAge, d.maximumAge),
@@ -54,29 +54,29 @@ const ensurePositionOptions = (
 };
 
 const ensureRetryArguments = (
-  v: Array<Partial<PositionOptions>> | undefined,
-  d: PositionOptions
-): PositionOptions[] => {
-  const r = ensure<Array<Partial<PositionOptions>>>(v, []);
+  v: Array<Partial<StrictPositionOptions>> | undefined,
+  d: StrictPositionOptions
+): StrictPositionOptions[] => {
+  const r = ensure<Array<Partial<StrictPositionOptions>>>(v, []);
   return r.reduce((a, i) => {
     return a.concat([ensurePositionOptions(i, a[a.length - 1])]);
   }, [d]).slice(1);
 };
 
 const buildOptions = (
-  options?: GetCurrentPositionOptions
-): NewPositionOptions => {
+  options?: PositionOptionsPrime
+): StrictPositionOptionsPrime => {
   if (typeof options === 'undefined') return defaultNewPositionOptions;
-  const positionOptions: PositionOptions = ensurePositionOptions(
+  const positionOptions: StrictPositionOptions = ensurePositionOptions(
     options, defaultPositionOptions
   );
-  const accuracyOptions: AccuracyOptions = ensureAccuracyOptions(
+  const accuracyOptions: StrictAccuracyOptions = ensureAccuracyOptions(
     options.accuracyOptions, defaultAccuracyOptions
   );
   const maximumRetryCount = ensure<number>(
     options.maximumRetryCount, defaultMaximumRetryCount
   );
-  const retryArguments: PositionOptions[] = ensureRetryArguments(
+  const retryArguments: StrictPositionOptions[] = ensureRetryArguments(
     options.retryArguments, positionOptions
   );
   return {
@@ -87,7 +87,4 @@ const buildOptions = (
   };
 };
 
-export {
-  NewPositionOptions,
-  buildOptions
-};
+export { buildOptions };

@@ -1,6 +1,4 @@
-import {
-  GetCurrentPositionOptions, NewPositionOptions
-} from './type/position-options';
+import { PositionOptionsPrime } from './type/position-options';
 
 // interface Coordinates {
 //   readonly accuracy: number;
@@ -18,12 +16,12 @@ import {
 // }
 
 const getCurrentPosition = (
-  _options: GetCurrentPositionOptions
+  _options: PositionOptionsPrime
 ): Promise<Position> => {
   return Promise.reject(new Error('Not Implemented Yet'));
 };
 
 export {
-  GetCurrentPositionOptions, NewPositionOptions,
+  PositionOptionsPrime,
   getCurrentPosition
 };
