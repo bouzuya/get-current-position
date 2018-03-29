@@ -1,25 +1,10 @@
 import { buildOptions } from './build-options';
+import { getOriginal } from './get-original';
 import { PositionOptionsPrime } from './type/position-options';
 
-type GetCurrentPosition = Geolocation['getCurrentPosition'];
-type PromisifiedGetCurrentPosition =
-  (options?: PositionOptions) => Promise<Position>;
-
-const getGetCurrentPosition = (): GetCurrentPosition | null => {
-  const w = window;
-  if (typeof w === 'undefined') return null;
-  const n = w.navigator;
-  if (typeof n === 'undefined') return null;
-  const g = n.geolocation;
-  if (typeof g === 'undefined') return null;
-  const f = g.getCurrentPosition;
-  if (typeof f === 'undefined') return null;
-  return f;
-};
-
 const promisifyGetCurrentPosition = (
-  original: GetCurrentPosition
-): PromisifiedGetCurrentPosition => {
+  original: Geolocation['getCurrentPosition']
+): (options?: PositionOptions) => Promise<Position> => {
   return (options) => {
     return new Promise((resolve, reject) => {
       return original(resolve, reject, options);
@@ -46,7 +31,7 @@ const getCurrentPosition = (
   options: PositionOptionsPrime
 ): Promise<Position> => {
   const strictOptions = buildOptions(options);
-  const original = getGetCurrentPosition();
+  const original = getOriginal();
   if (original === null) return Promise.reject(new Error()); // TODO
   const promisifiedGetCurrentPosition = promisifyGetCurrentPosition(original);
   // TODO: retry and error handling
