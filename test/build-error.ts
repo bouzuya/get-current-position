@@ -1,12 +1,12 @@
 import { Test, test } from 'beater';
 import assert from 'power-assert';
 import {
+  buildLowAccuracyError,
   buildNotSupportedError,
   buildPermissionDeniedError,
   buildPositionUnavailableError,
   buildTimeoutError,
-  buildUnknownError,
-  buildLowAccuracyError
+  buildUnknownError
 } from '../src/build-error';
 import { StrictPositionOptions } from '../src/type/position-options';
 
