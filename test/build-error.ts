@@ -5,12 +5,21 @@ import {
   buildPermissionDeniedError,
   buildPositionUnavailableError,
   buildTimeoutError,
-  buildUnknownError
+  buildUnknownError,
+  buildLowAccuracyError
 } from '../src/build-error';
 import { StrictPositionOptions } from '../src/type/position-options';
 
 const category = '/build-error ';
 const tests: Test[] = [
+  test(category + 'buildLowAccuracyError', () => {
+    const options = {} as StrictPositionOptions;
+    const position = {} as Position;
+    const error = buildLowAccuracyError(options, position);
+    assert(error.options === options);
+    assert(error.position === position);
+    assert(error.type === 'low_accuracy');
+  }),
   test(category + 'buildNotSupportedError', () => {
     const options = {} as StrictPositionOptions;
     const error = buildNotSupportedError(options);

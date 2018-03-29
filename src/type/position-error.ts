@@ -34,6 +34,7 @@ export interface PositionTimeoutError
 
 export interface PositionLowAccuracyError
   extends PositionBaseError {
+  position: Position;
   type: 'low_accuracy';
 }
 

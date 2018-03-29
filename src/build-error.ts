@@ -1,4 +1,5 @@
 import {
+  PositionLowAccuracyError,
   PositionNotSupportedError,
   PositionPermissionDeniedError,
   PositionPositionUnavailableError,
@@ -6,6 +7,17 @@ import {
   PositionUnknownError
 } from './type/position-error';
 import { StrictPositionOptions } from './type/position-options';
+
+const buildLowAccuracyError = (
+  options: StrictPositionOptions,
+  position: Position
+): PositionLowAccuracyError => {
+  return {
+    options,
+    position,
+    type: 'low_accuracy'
+  };
+};
 
 const buildNotSupportedError = (
   options: StrictPositionOptions
@@ -53,6 +65,7 @@ const buildUnknownError = (
 };
 
 export {
+  buildLowAccuracyError,
   buildNotSupportedError,
   buildPermissionDeniedError,
   buildPositionUnavailableError,
