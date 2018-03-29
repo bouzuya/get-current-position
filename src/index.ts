@@ -1,3 +1,6 @@
-import { getCurrentPosition } from './get-current-position';
+import {
+  PositionOptionsPrime,
+  getCurrentPosition
+} from './get-current-position';
 
-export { getCurrentPosition };
+export { PositionOptionsPrime, getCurrentPosition };
