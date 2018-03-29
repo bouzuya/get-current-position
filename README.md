@@ -14,7 +14,7 @@ $ npm install @bouzuya/get-current-position
 import { getCurrentPosition } from '@bouzuya/get-current-position';
 
 const main = async () => {
-  const position = await getCurrentPosition({
+  const position1 = await getCurrentPosition({
     enableHighAccuracy: true,
     timeout: 5000,
     maximumAge: 0,
@@ -31,15 +31,43 @@ const main = async () => {
   //   },
   //   timestamp: 1522119771324
   // }
-  console.log(position);
+  console.log(position1);
+
+  // retry & accuracy options
+  const position2 = await getCurrentPosition({
+    ...{
+      enableHighAccuracy: false,
+      timeout: 100,
+      maximumAge: Infinity
+    },
+    accuracyOptions: {
+      maximumAccuracy: 500,
+      minimumTimestamp: new Date().getTime() - 300000
+    },
+    maximumRetryCount: 3,
+    retryArguments: [
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    ]
+  });
+  console.log(position2);
 };
 
 main();
 ```
-
-## API
-
-See: [`src/index.ts`](src/index.ts).
 
 ## Badges
 
