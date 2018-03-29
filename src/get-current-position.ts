@@ -1,4 +1,5 @@
 import {
+  buildLowAccuracyError,
   buildNotSupportedError,
   buildPermissionDeniedError,
   buildPositionUnavailableError,
@@ -25,9 +26,20 @@ const promisifyGetCurrentPosition = (
 };
 
 const wrapError = (
-  error: PositionError,
+  error: PositionError | PositionErrorPrime,
   options: StrictPositionOptions
 ): PositionErrorPrime => {
+  const isPositionErrorPrime = (e: any): e is PositionErrorPrime => {
+    return [
+      'low_accuracy',
+      'not_supported',
+      'permission_denied',
+      'position_unavailable',
+      'timeout',
+      'unknown'
+    ].indexOf(e.type) >= 0;
+  };
+  if (isPositionErrorPrime(error)) return error;
   switch (error.code) {
     case 1: // PERMISSION_DENIED
       return buildPermissionDeniedError(options);
@@ -61,19 +73,31 @@ const tryCall = (
   retryCount: number
 ): Promise<Position> => {
   const strictOptions = getStrictOptions(strictOptionsPrime, retryCount);
-  // TODO: low accuracy
-  return promisified(strictOptions).catch((error: PositionError) => {
-    const errorPrime = wrapError(error, strictOptionsPrime);
-    const retry =
-      errorPrime.type === 'low_accuracy' ||
-      errorPrime.type === 'position_unavailable' ||
-      errorPrime.type === 'timeout';
-    if (retry && retryCount < strictOptionsPrime.maximumRetryCount) {
-      return tryCall(promisified, strictOptionsPrime, retryCount + 1);
-    } else {
-      return Promise.reject(errorPrime);
-    }
-  });
+  return promisified(strictOptions)
+    .then((position) => {
+      const { coords: { accuracy }, timestamp } = position;
+      const { accuracyOptions } = strictOptionsPrime;
+      if (
+        accuracy > accuracyOptions.maximumAccuracy ||
+        timestamp < accuracyOptions.minimumTimestamp
+      ) {
+        const errorPrime = buildLowAccuracyError(strictOptions, position);
+        return Promise.reject(errorPrime);
+      }
+      return Promise.resolve(position);
+    })
+    .catch((error: PositionError | PositionErrorPrime) => {
+      const errorPrime = wrapError(error, strictOptionsPrime);
+      const retry =
+        errorPrime.type === 'low_accuracy' ||
+        errorPrime.type === 'position_unavailable' ||
+        errorPrime.type === 'timeout';
+      if (retry && retryCount < strictOptionsPrime.maximumRetryCount) {
+        return tryCall(promisified, strictOptionsPrime, retryCount + 1);
+      } else {
+        return Promise.reject(errorPrime);
+      }
+    });
 };
 
 // interface Coordinates {

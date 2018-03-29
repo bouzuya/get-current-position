@@ -302,6 +302,80 @@ const tests: Test[] = [
         assert(result === position);
       });
     })
+  ),
+  test(category + 'low accuracy', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      const position: Position = {
+        coords: {
+          accuracy: 0,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          latitude: 0,
+          longitude: 0,
+          speed: null
+        },
+        timestamp: 0
+      };
+      // first call successCallback (low accuracy)
+      // second call successCallback
+      const original = sinon.stub()
+        .onFirstCall().callsArgWith(0, {
+          ...position,
+          coords: { accuracy: 1000 }
+        })
+        .onSecondCall().callsArgWith(0, position);
+      buildOptions.returns({
+        ...defaultOptions,
+        accuracyOptions: {
+          maximumAccuracy: 999,
+          minimumTimestamp: 0
+        },
+        maximumRetryCount: 1
+      });
+      getOriginal.returns(original);
+      return getCurrentPosition({
+        accuracyOptions: {
+          maximumAccuracy: 999
+        },
+        maximumRetryCount: 1
+      }).then((result) => {
+        assert(buildOptions.callCount === 1);
+        assert.deepEqual(buildOptions.getCall(0).args, [
+          {
+            accuracyOptions: {
+              maximumAccuracy: 999
+            },
+            maximumRetryCount: 1
+          }
+        ]);
+        assert(getOriginal.callCount === 1);
+        assert(original.callCount === 2);
+        assert(original.getCall(0).args.length === 3);
+        assert(typeof original.getCall(0).args[0] === 'function');
+        assert(typeof original.getCall(0).args[1] === 'function');
+        assert.deepEqual(
+          original.getCall(0).args[2],
+          {
+            enableHighAccuracy: defaultOptions.enableHighAccuracy,
+            maximumAge: defaultOptions.maximumAge,
+            timeout: defaultOptions.timeout
+          }
+        );
+        assert(original.getCall(1).args.length === 3);
+        assert(typeof original.getCall(1).args[0] === 'function');
+        assert(typeof original.getCall(1).args[1] === 'function');
+        assert.deepEqual(
+          original.getCall(1).args[2],
+          {
+            enableHighAccuracy: defaultOptions.enableHighAccuracy,
+            maximumAge: defaultOptions.maximumAge,
+            timeout: defaultOptions.timeout
+          }
+        );
+        assert(result === position);
+      });
+    })
   )
 ];
 
