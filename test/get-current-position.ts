@@ -134,12 +134,30 @@ const tests: Test[] = [
         });
     })
   ),
-  test(category + 'dummy', fixture(setUp, tearDown,
+
+  test(category + 'call once', fixture(setUp, tearDown,
     ({ buildOptions, getCurrentPosition, getOriginal }) => {
-      const original = sinon.stub().callsArgWith(0, {});
+      const position: Position = {
+        coords: {
+          accuracy: 0,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          latitude: 0,
+          longitude: 0,
+          speed: null
+        },
+        timestamp: 0
+      };
+      const original = sinon.stub().callsArgWith(0, position);
       buildOptions.returns(defaultOptions);
       getOriginal.returns(original);
-      return getCurrentPosition().then(() => {
+      return getCurrentPosition().then((result) => {
+        assert(buildOptions.callCount === 1);
+        assert.deepEqual(buildOptions.getCall(0).args, [
+          void 0
+        ]);
+        assert(getOriginal.callCount === 1);
         assert(original.callCount === 1);
         assert(original.getCall(0).args.length === 3);
         assert(typeof original.getCall(0).args[0] === 'function');
@@ -152,6 +170,78 @@ const tests: Test[] = [
             timeout: defaultOptions.timeout
           }
         );
+        assert(result === position);
+      });
+    })
+  ),
+  test(category + 'call twice (retry)', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      const position: Position = {
+        coords: {
+          accuracy: 0,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          latitude: 0,
+          longitude: 0,
+          speed: null
+        },
+        timestamp: 0
+      };
+      // first call failureCallback with PositionError.code = 3 (timeout)
+      // second call successCallback
+      const original = sinon.stub()
+        .onFirstCall().callsArgWith(1, { code: 3 })
+        .onSecondCall().callsArgWith(0, position);
+      buildOptions.returns({ ...defaultOptions,
+        maximumRetryCount: 1,
+        retryArguments: [
+          {
+            enableHighAccuracy: false,
+            maximumAge: 0,
+            timeout: Infinity
+          }
+        ]
+      });
+      getOriginal.returns(original);
+      return getCurrentPosition({
+        maximumRetryCount: 1,
+        retryArguments: [
+          {}
+        ]
+      }).then((result) => {
+        assert(buildOptions.callCount === 1);
+        assert.deepEqual(buildOptions.getCall(0).args, [
+          {
+            maximumRetryCount: 1,
+            retryArguments: [{}]
+          }
+        ]);
+        assert(getOriginal.callCount === 1);
+        assert(original.callCount === 2);
+        assert(original.getCall(0).args.length === 3);
+        assert(typeof original.getCall(0).args[0] === 'function');
+        assert(typeof original.getCall(0).args[1] === 'function');
+        assert.deepEqual(
+          original.getCall(0).args[2],
+          {
+            enableHighAccuracy: defaultOptions.enableHighAccuracy,
+            maximumAge: defaultOptions.maximumAge,
+            timeout: defaultOptions.timeout
+          }
+        );
+        assert(original.getCall(1).args.length === 3);
+        assert(typeof original.getCall(1).args[0] === 'function');
+        assert(typeof original.getCall(1).args[1] === 'function');
+        assert.deepEqual(
+          original.getCall(1).args[2],
+          {
+            enableHighAccuracy: defaultOptions.enableHighAccuracy,
+            maximumAge: defaultOptions.maximumAge,
+            timeout: defaultOptions.timeout
+          }
+        );
+        assert(result === position);
       });
     })
   )

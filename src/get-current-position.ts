@@ -8,7 +8,11 @@ import {
 import { buildOptions } from './build-options';
 import { getOriginal } from './get-original';
 import { PositionErrorPrime } from './type/position-error';
-import { PositionOptionsPrime, StrictPositionOptions } from './type/position-options';
+import {
+  PositionOptionsPrime,
+  StrictPositionOptions,
+  StrictPositionOptionsPrime
+} from './type/position-options';
 
 const promisifyGetCurrentPosition = (
   original: Geolocation['getCurrentPosition']
@@ -36,6 +40,35 @@ const wrapError = (
   }
 };
 
+const tryCall = (
+  promisified: (options?: PositionOptions) => Promise<Position>,
+  strictOptionsPrime: StrictPositionOptionsPrime,
+  retryCount: number
+): Promise<Position> => {
+  const strictOptions = retryCount === 0
+    ? {
+      enableHighAccuracy: strictOptionsPrime.enableHighAccuracy,
+      maximumAge: strictOptionsPrime.maximumAge,
+      timeout: strictOptionsPrime.timeout
+    }
+    // TODO: StrictPositionOptions | undefined
+    : strictOptionsPrime.retryArguments[retryCount - 1];
+
+  // TODO: low accuracy
+  return promisified(strictOptions).catch((error: PositionError) => {
+    const errorPrime = wrapError(error, strictOptionsPrime);
+    const retry =
+      errorPrime.type === 'low_accuracy' ||
+      errorPrime.type === 'position_unavailable' ||
+      errorPrime.type === 'timeout';
+    if (retry && retryCount < strictOptionsPrime.maximumRetryCount) {
+      return tryCall(promisified, strictOptionsPrime, retryCount + 1);
+    } else {
+      return Promise.reject(errorPrime);
+    }
+  });
+};
+
 // interface Coordinates {
 //   readonly accuracy: number;
 //   readonly altitude: number | null;
@@ -54,22 +87,14 @@ const wrapError = (
 const getCurrentPosition = (
   options?: PositionOptionsPrime
 ): Promise<Position> => {
-  const strictOptions = buildOptions(options);
+  const strictOptionsPrime = buildOptions(options);
   const original = getOriginal();
   if (original === null) {
-    const error = buildNotSupportedError(strictOptions);
+    const error = buildNotSupportedError(strictOptionsPrime);
     return Promise.reject(error);
   }
-  const promisifiedGetCurrentPosition = promisifyGetCurrentPosition(original);
-  return promisifiedGetCurrentPosition({
-    enableHighAccuracy: strictOptions.enableHighAccuracy,
-    maximumAge: strictOptions.maximumAge,
-    timeout: strictOptions.timeout
-  }).catch((error: PositionError) => {
-    const errorPrime = wrapError(error, strictOptions);
-    // TODO: retry
-    return Promise.reject(errorPrime);
-  });
+  const promisified = promisifyGetCurrentPosition(original);
+  return tryCall(promisified, strictOptionsPrime, 0);
 };
 
 export {
