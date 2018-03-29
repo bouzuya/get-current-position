@@ -54,6 +54,7 @@ const category = '/get-current-position ';
 const tests: Test[] = [
   test(category + 'PositionNotSupportedError', fixture(setUp, tearDown,
     ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      buildOptions.returns(defaultOptions);
       getOriginal.returns(null);
       return getCurrentPosition().then(
         () => assert.fail(),
@@ -63,6 +64,27 @@ const tests: Test[] = [
           assert(error.type === 'not_supported');
           assert.deepEqual(error.options, defaultOptions);
         });
+    })
+  ),
+  test(category + 'dummy', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      const original = sinon.stub().callsArgWith(0, {});
+      buildOptions.returns(defaultOptions);
+      getOriginal.returns(original);
+      return getCurrentPosition().then(() => {
+        assert(original.callCount === 1);
+        assert(original.getCall(0).args.length === 3);
+        assert(typeof original.getCall(0).args[0] === 'function');
+        assert(typeof original.getCall(0).args[1] === 'function');
+        assert.deepEqual(
+          original.getCall(0).args[2],
+          {
+            enableHighAccuracy: defaultOptions.enableHighAccuracy,
+            maximumAge: defaultOptions.maximumAge,
+            timeout: defaultOptions.timeout
+          }
+        );
+      });
     })
   )
 ];
