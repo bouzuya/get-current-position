@@ -1,3 +1,4 @@
+import { buildNotSupportedError } from './build-error';
 import { buildOptions } from './build-options';
 import { getOriginal } from './get-original';
 import { PositionOptionsPrime } from './type/position-options';
@@ -28,11 +29,14 @@ const promisifyGetCurrentPosition = (
 // }
 
 const getCurrentPosition = (
-  options: PositionOptionsPrime
+  options?: PositionOptionsPrime
 ): Promise<Position> => {
   const strictOptions = buildOptions(options);
   const original = getOriginal();
-  if (original === null) return Promise.reject(new Error()); // TODO
+  if (original === null) {
+    const error = buildNotSupportedError(strictOptions);
+    return Promise.reject(error);
+  }
   const promisifiedGetCurrentPosition = promisifyGetCurrentPosition(original);
   // TODO: retry and error handling
   return promisifiedGetCurrentPosition({
