@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import {
   getCurrentPosition as getCurrentPositionType
 } from '../src/get-current-position';
-import { PositionNotSupportedError } from '../src/type/position-error';
+import { PositionErrorPrime } from '../src/type/position-error';
 import { StrictPositionOptionsPrime } from '../src/type/position-options';
 
 interface Context {
@@ -58,10 +58,78 @@ const tests: Test[] = [
       getOriginal.returns(null);
       return getCurrentPosition().then(
         () => assert.fail(),
-        (error: PositionNotSupportedError) => {
+        (error: PositionErrorPrime) => {
           assert(buildOptions.callCount === 1);
           assert(getOriginal.callCount === 1);
           assert(error.type === 'not_supported');
+          assert.deepEqual(error.options, defaultOptions);
+        });
+    })
+  ),
+  test(category + 'PositionPermissionDeniedError', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      // call failureCallback with PositionError.code = 1
+      const original = sinon.stub().callsArgWith(1, { code: 1 });
+      buildOptions.returns(defaultOptions);
+      getOriginal.returns(original);
+      return getCurrentPosition().then(
+        () => assert.fail(),
+        (error: PositionErrorPrime) => {
+          assert(buildOptions.callCount === 1);
+          assert(getOriginal.callCount === 1);
+          assert(original.callCount === 1);
+          assert(error.type === 'permission_denied');
+          assert.deepEqual(error.options, defaultOptions);
+        });
+    })
+  ),
+  test(category + 'PositionPositionUnavailableError', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      // call failureCallback with PositionError.code = 2
+      const original = sinon.stub().callsArgWith(1, { code: 2 });
+      buildOptions.returns(defaultOptions);
+      getOriginal.returns(original);
+      return getCurrentPosition().then(
+        () => assert.fail(),
+        (error: PositionErrorPrime) => {
+          assert(buildOptions.callCount === 1);
+          assert(getOriginal.callCount === 1);
+          assert(original.callCount === 1);
+          assert(error.type === 'position_unavailable');
+          assert.deepEqual(error.options, defaultOptions);
+        });
+    })
+  ),
+  test(category + 'PositionTimeoutError', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      // call failureCallback with PositionError.code = 3
+      const original = sinon.stub().callsArgWith(1, { code: 3 });
+      buildOptions.returns(defaultOptions);
+      getOriginal.returns(original);
+      return getCurrentPosition().then(
+        () => assert.fail(),
+        (error: PositionErrorPrime) => {
+          assert(buildOptions.callCount === 1);
+          assert(getOriginal.callCount === 1);
+          assert(original.callCount === 1);
+          assert(error.type === 'timeout');
+          assert.deepEqual(error.options, defaultOptions);
+        });
+    })
+  ),
+  test(category + 'PositionUnknownError', fixture(setUp, tearDown,
+    ({ buildOptions, getCurrentPosition, getOriginal }) => {
+      // call failureCallback with unknown error
+      const original = sinon.stub().callsArgWith(1, {});
+      buildOptions.returns(defaultOptions);
+      getOriginal.returns(original);
+      return getCurrentPosition().then(
+        () => assert.fail(),
+        (error: PositionErrorPrime) => {
+          assert(buildOptions.callCount === 1);
+          assert(getOriginal.callCount === 1);
+          assert(original.callCount === 1);
+          assert(error.type === 'unknown');
           assert.deepEqual(error.options, defaultOptions);
         });
     })

@@ -1,7 +1,14 @@
-import { buildNotSupportedError } from './build-error';
+import {
+  buildNotSupportedError,
+  buildPermissionDeniedError,
+  buildPositionUnavailableError,
+  buildTimeoutError,
+  buildUnknownError
+} from './build-error';
 import { buildOptions } from './build-options';
 import { getOriginal } from './get-original';
-import { PositionOptionsPrime } from './type/position-options';
+import { PositionErrorPrime } from './type/position-error';
+import { PositionOptionsPrime, StrictPositionOptions } from './type/position-options';
 
 const promisifyGetCurrentPosition = (
   original: Geolocation['getCurrentPosition']
@@ -11,6 +18,22 @@ const promisifyGetCurrentPosition = (
       return original(resolve, reject, options);
     });
   };
+};
+
+const wrapError = (
+  error: PositionError,
+  options: StrictPositionOptions
+): PositionErrorPrime => {
+  switch (error.code) {
+    case 1: // PERMISSION_DENIED
+      return buildPermissionDeniedError(options);
+    case 2: // POSITION_UNAVAILABLE
+      return buildPositionUnavailableError(options);
+    case 3: // TIMEOUT
+      return buildTimeoutError(options);
+    default: // UNKNOWN
+      return buildUnknownError(options);
+  }
 };
 
 // interface Coordinates {
@@ -38,11 +61,14 @@ const getCurrentPosition = (
     return Promise.reject(error);
   }
   const promisifiedGetCurrentPosition = promisifyGetCurrentPosition(original);
-  // TODO: retry and error handling
   return promisifiedGetCurrentPosition({
     enableHighAccuracy: strictOptions.enableHighAccuracy,
     maximumAge: strictOptions.maximumAge,
     timeout: strictOptions.timeout
+  }).catch((error: PositionError) => {
+    const errorPrime = wrapError(error, strictOptions);
+    // TODO: retry
+    return Promise.reject(errorPrime);
   });
 };
 
