@@ -40,20 +40,27 @@ const wrapError = (
   }
 };
 
+const getStrictOptions = (
+  strictOptionsPrime: StrictPositionOptionsPrime,
+  retryCount: number
+): StrictPositionOptions => {
+  const args = [
+    {
+      enableHighAccuracy: strictOptionsPrime.enableHighAccuracy,
+      maximumAge: strictOptionsPrime.maximumAge,
+      timeout: strictOptionsPrime.timeout
+    }
+  ].concat(strictOptionsPrime.retryArguments);
+  const index = Math.max(0, Math.min(retryCount - 1, args.length - 1));
+  return args[index];
+};
+
 const tryCall = (
   promisified: (options?: PositionOptions) => Promise<Position>,
   strictOptionsPrime: StrictPositionOptionsPrime,
   retryCount: number
 ): Promise<Position> => {
-  const strictOptions = retryCount === 0
-    ? {
-      enableHighAccuracy: strictOptionsPrime.enableHighAccuracy,
-      maximumAge: strictOptionsPrime.maximumAge,
-      timeout: strictOptionsPrime.timeout
-    }
-    // TODO: StrictPositionOptions | undefined
-    : strictOptionsPrime.retryArguments[retryCount - 1];
-
+  const strictOptions = getStrictOptions(strictOptionsPrime, retryCount);
   // TODO: low accuracy
   return promisified(strictOptions).catch((error: PositionError) => {
     const errorPrime = wrapError(error, strictOptionsPrime);
