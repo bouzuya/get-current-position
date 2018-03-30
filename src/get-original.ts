@@ -6,7 +6,7 @@ const getOriginal = (): Geolocation['getCurrentPosition'] | null => {
   if (typeof g === 'undefined') return null;
   const f = g.getCurrentPosition;
   if (typeof f === 'undefined') return null;
-  return f;
+  return f.bind(g);
 };
 
 export { getOriginal };
