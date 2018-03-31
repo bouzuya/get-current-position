@@ -73,11 +73,14 @@ main();
 
 [![npm version][npm-badge-url]][npm-url]
 [![Travis CI][travisci-badge-url]][travisci-url]
+[![Coveralls][coveralls-badge-url]][coveralls-url]
 
 [npm-badge-url]: https://img.shields.io/npm/v/@bouzuya/get-current-position.svg
 [npm-url]: https://www.npmjs.com/package/@bouzuya/get-current-position
 [travisci-badge-url]: https://img.shields.io/travis/bouzuya/get-current-position.svg
 [travisci-url]: https://travis-ci.org/bouzuya/get-current-position
+[coveralls-url]: https://coveralls.io/github/bouzuya/get-current-position
+[coveralls-badge-url]: https://img.shields.io/coveralls/github/jekyll/jekyll.svg
 
 ## License
 
