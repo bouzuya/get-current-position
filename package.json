@@ -33,6 +33,7 @@
     "babel-preset-power-assert": "^2.0.0",
     "beater": "^5.0.0",
     "beater-helpers": "^0.2.0",
+    "coveralls": "^3.0.0",
     "npm-run-all": "^4.1.0",
     "nyc": "^11.6.0",
     "power-assert": "^1.4.0",
