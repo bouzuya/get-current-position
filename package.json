@@ -1,7 +1,7 @@
 {
   "name": "@bouzuya/get-current-position",
   "description": "`navigator.geolocation.getCurrentPosition` wrapper",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "email": "m@bouzuya.net",
     "name": "bouzuya",
