@@ -80,7 +80,7 @@ main();
 [travisci-badge-url]: https://img.shields.io/travis/bouzuya/get-current-position.svg
 [travisci-url]: https://travis-ci.org/bouzuya/get-current-position
 [coveralls-url]: https://coveralls.io/github/bouzuya/get-current-position
-[coveralls-badge-url]: https://img.shields.io/coveralls/github/jekyll/jekyll.svg
+[coveralls-badge-url]: https://img.shields.io/coveralls/github/bouzuya/get-current-position.svg
 
 ## License
 
