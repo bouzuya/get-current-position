@@ -4,13 +4,13 @@
 
 ## Installation
 
-```
+```sh
 $ npm install @bouzuya/get-current-position
 ```
 
 ## Usage
 
-```
+```typescript
 import { getCurrentPosition } from '@bouzuya/get-current-position';
 
 const main = async () => {
